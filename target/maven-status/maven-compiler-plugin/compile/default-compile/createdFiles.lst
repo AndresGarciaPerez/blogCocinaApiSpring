@@ -1,0 +1,7 @@
+myApp\blog\BlogApplication.class
+myApp\blog\controlador\BlogControlador.class
+myApp\blog\modelo\Receta.class
+myApp\blog\repositorio\RecetaRepositorio.class
+myApp\blog\mensajeExcepcion\RecursoNoEncontrado.class
+myApp\blog\servicio\RecetaServicio.class
+myApp\blog\servicio\IRecetaServicio.class
