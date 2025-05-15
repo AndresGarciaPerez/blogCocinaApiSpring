@@ -1,13 +1,17 @@
 package myApp.blog.controlador;
 
-import myApp.blog.mensajeExcepcion.RecursoNoEncontrado;
+import myApp.blog.dto.RecetaResponse;
 import myApp.blog.modelo.Receta;
+import myApp.blog.repositorio.UsuarioRepositorio;
 import myApp.blog.servicio.RecetaServicio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +21,8 @@ import java.util.Map;
 @RequestMapping("blogCocina") //Http://localhost:8080/blogCocina
 
 //Permiso para angular
-@CrossOrigin(value = "https://blogcocina-spring-angular.netlify.app")
+@CrossOrigin(value = "http://localhost:4200")
+//@CrossOrigin(value = "https://blogcocina-spring-angular.netlify.app")
 
 public class BlogControlador {
 
@@ -26,52 +31,60 @@ public class BlogControlador {
     @Autowired
     RecetaServicio recetaServicio;
 
+    @Autowired
+    UsuarioRepositorio usuarioRepositorio;
+
+    //LISTAR
     @GetMapping("/recetas") //Http://localhost:8080/blogCocina/recetas
-    public List<Receta> obtenerRecetas(){
-        List<Receta> recetas = recetaServicio.listarRecetas();
-        logger.info("items obtenidos: ");
-        recetas.forEach(receta -> logger.info(receta.toString()));
-        return recetas;
+    public List<RecetaResponse> obtenerRecetas(){
+         return recetaServicio.listarRecetas();
+
     }
 
+    //GUARDAR
     @PostMapping("/recetas")
-    public Receta agregarReceta(@RequestBody Receta receta){
-        logger.info("Item guardado: "+receta);
-        return this.recetaServicio.guardarReceta(receta);
+    public RecetaResponse agregarReceta(@RequestBody Receta receta, Authentication authentication){
+        return this.recetaServicio.guardarReceta(receta,authentication.getName());
     }
 
+    //BUSCAR POR ID
     @GetMapping("/recetas/{id}")
-    public ResponseEntity<Receta> obtenerRecetaId(@PathVariable int id){
-        Receta receta = recetaServicio.buscarRecetaId(id);
-        if(receta != null){
-            return  ResponseEntity.ok(receta);
-        }else{
-            throw new RecursoNoEncontrado("No se encontro el registro: "+ receta);
-        }
+    public ResponseEntity<RecetaResponse> obtenerRecetaId(@PathVariable long id){
+        RecetaResponse recetaResponse = recetaServicio.buscarRecetaId(id);
+        return ResponseEntity.ok(recetaResponse);
+
     }
 
+    //ACTUALIZAR
     @PutMapping("/recetas/{id}")
-    public ResponseEntity<Receta> actualizarProducto(@PathVariable int id, @RequestBody Receta recetaRecibida){
-        Receta receta = this.recetaServicio.buscarRecetaId(id);
+    public ResponseEntity<RecetaResponse> actualizarProducto(@PathVariable long id, @RequestBody Receta recetaRecibida, Authentication authentication){
+        Receta receta = this.recetaServicio.obtenerRecetaEntidadPorId(id);
+
         receta.setImagen(recetaRecibida.getImagen());
         receta.setTitulo(recetaRecibida.getTitulo());
         receta.setDescripcion(recetaRecibida.getDescripcion());
+
+
+        if(!receta.getUsuario().getUsername().equals(authentication.getName()) ){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permisos para eliminar este registro");
+        }
+
         //el id ya lo tiene al ejecutar buscarRecetaPorId
-        this.recetaServicio.guardarReceta(receta);
-        return  ResponseEntity.ok(receta);
+        RecetaResponse recetaActualizada = recetaServicio.guardarReceta(receta, authentication.getName());
+
+        return  ResponseEntity.ok(recetaActualizada);
     }
 
 
+    //ELIMINAR
     @DeleteMapping("/recetas/{id}")
-    public ResponseEntity<Map<String,Boolean>> eliminarReceta(@PathVariable int id){
-        Receta receta = recetaServicio.buscarRecetaId(id);
-        if (receta == null){
-            throw new RecursoNoEncontrado("No se encontro el registro: "+receta);
-        }
-            this.recetaServicio.eliminarReceta(receta.getIdReceta());
-            Map<String,Boolean> respuesta = new HashMap<>();
-            respuesta.put("Eliminado", Boolean.TRUE);
-            return ResponseEntity.ok(respuesta);
+    public ResponseEntity<Map<String,Boolean>> eliminarReceta(@PathVariable long id, Authentication authentication){
+        this.recetaServicio.eliminarReceta(id, authentication.getName());
+
+        Map<String, Boolean> respuesta = new HashMap<>();
+        respuesta.put("eliminado", Boolean.TRUE);
+
+        return ResponseEntity.ok(respuesta);
     }
 
 }

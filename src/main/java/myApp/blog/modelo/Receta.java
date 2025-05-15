@@ -1,9 +1,6 @@
 package myApp.blog.modelo;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -16,9 +13,18 @@ import lombok.*;
 public class Receta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer idReceta;
+
+    Long idReceta;
+
     String imagen;
+
     String titulo;
+
+    @Column(nullable = false, length = 255)
     String descripcion;
+
+    @ManyToOne
+    @JoinColumn(name = "idUsuario")
+    private Usuario usuario;
 
 }
