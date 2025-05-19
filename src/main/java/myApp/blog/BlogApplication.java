@@ -15,7 +15,7 @@ public class BlogApplication {
 		receta.setTitulo("Baleadas");
 		receta.setDescripcion("Este un platillo tipico Hondureño");
 
-		System.out.println(receta);
+		//System.out.println(receta);
 	}
 
 }

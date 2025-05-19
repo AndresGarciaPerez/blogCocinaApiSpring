@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             } catch (UsernameNotFoundException ex){
-                System.out.println("Usuario no encontrado o token no valido");
+                //System.out.println("Usuario no encontrado o token no valido");
             }
 
         }

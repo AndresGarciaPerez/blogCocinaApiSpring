@@ -37,7 +37,6 @@ public class SecurityConfig {
         return args -> {
             String rawPassword = "123123";
             String encodedPassword = passwordEncoder.encode(rawPassword);
-            System.out.println("Contraseña encriptada: " + encodedPassword);
         };
     }
 
