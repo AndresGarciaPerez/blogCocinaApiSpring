@@ -39,7 +39,7 @@ public class AuthService {
         usuario.setRole(request.getRole());
         Usuario usuarioRegistrado = usuarioRepositorio.save(usuario);
 
-        String token = jwtUtils.generarToken(usuarioRegistrado.getUsername());
+        String token = jwtUtils.generarToken(usuario);
 
         Map<String, Object> usuarioMap = new HashMap<>();
         usuarioMap.put("idUsuario", usuarioRegistrado.getIdUsuario());
@@ -53,17 +53,16 @@ public class AuthService {
         return response;
     }
 
-    public UsuarioResponse actualizarUsuario(String username, ActualizarUsuarioRequest request){
+    public Usuario actualizarUsuario(String username, ActualizarUsuarioRequest request){
         Usuario usuario = usuarioRepositorio.findByUsername(username).
                 orElseThrow( () -> new RecursoNoEncontrado("Usuario no encontrado"));
         usuario.setUsername(request.getUsername());
         usuario.setRole(request.getRole());
-        Usuario usuarioActualizado = usuarioRepositorio.save(usuario);
+        return usuarioRepositorio.save(usuario);
 
-        return new UsuarioResponse(usuarioActualizado);
     }
 
-    public void actualizarPassword(String username, CambiarPasswordRequest request){
+    public Usuario actualizarPassword(String username, CambiarPasswordRequest request){
         Usuario usuario = usuarioRepositorio.findByUsername(username)
                 .orElseThrow(()->new UsernameNotFoundException("Usuario no encontrado"));
 
@@ -72,7 +71,7 @@ public class AuthService {
         }
 
         usuario.setPassword(passwordEncoder.encode(request.getNuevaPassword()));
-        usuarioRepositorio.save(usuario);
+        return usuarioRepositorio.save(usuario);
     }
 
 

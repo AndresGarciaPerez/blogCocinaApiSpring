@@ -44,16 +44,18 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String,Object>> login(@Valid @RequestBody AuthRequest authRequest){
-        try
-        {
+        try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token = jwtUtils.generarToken(authRequest.getUsername());
 
+            // Buscar al usuario desde la base de datos
             Usuario usuario = usuarioRepositorio.findByUsername(authRequest.getUsername())
-                    .orElseThrow( ()-> new UsernameNotFoundException("Usuario no encontrado"));
+                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+            // Generar token confiable con ID y username
+            String token = jwtUtils.generarToken(usuario);
 
             UsuarioDTO usuarioDTO = new UsuarioDTO(usuario.getIdUsuario(), usuario.getUsername(), usuario.getRole());
 
@@ -65,10 +67,11 @@ public class AuthController {
 
         } catch (AuthenticationException e){
             Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("Error: ", "Credenciales invalidas");
+            errorResponse.put("error", "Credenciales inválidas");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
+
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegistroRequest request){
@@ -87,31 +90,49 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/actualizar")
     public ResponseEntity<Map<String, Object>> actualizarUsuario(Authentication authentication, @RequestBody ActualizarUsuarioRequest request){
-        Usuario usuarioAutenticado = usuarioRepositorio.findByUsername(authentication.getName())
-                .orElseThrow( () -> new UsernameNotFoundException("Usuario no encontrado"));
-        String username = authentication.getName();
-        UsuarioResponse usuarioActualizado = authService.actualizarUsuario(username, request);
+        String usernameActual = authentication.getName();
 
-        String nuevoToken = jwtUtils.generarToken(usuarioActualizado.getUsername());
+        Usuario usuarioActualizado = authService.actualizarUsuario(usernameActual, request);
+        String nuevoToken = jwtUtils.generarToken(usuarioActualizado);
+        UsuarioResponse usuarioResponse = new UsuarioResponse(usuarioActualizado);
+
         Map<String, Object> response = new HashMap<>();
-        response.put("usuario", usuarioActualizado);
+        response.put("usuario", usuarioResponse);
         response.put("token", nuevoToken);
-
         return ResponseEntity.ok(response);
     }
 
 
     @PreAuthorize("isAuthenticated")
     @PutMapping("/actualizar-password")
-    public ResponseEntity<?> actualizarPassword(@RequestBody CambiarPasswordRequest request, Authentication authentication){
-        authService.actualizarPassword(authentication.getName(), request);
-        return ResponseEntity.ok(Collections.singletonMap("Mensaje", "Contraseña actualizada correctamente"));
+    public ResponseEntity<Map<String, Object>> actualizarPassword(@RequestBody CambiarPasswordRequest request, Authentication authentication){
+
+        String username = authentication.getName();
+
+        Usuario usuarioActualizado = authService.actualizarPassword(username, request);
+        String nuevoToken = jwtUtils.generarToken(usuarioActualizado);
+       // UsuarioResponse usuarioResponse = new UsuarioResponse(usuarioActualizado);
+
+        UsuarioDTO usuarioDTO = new UsuarioDTO(
+                usuarioActualizado.getIdUsuario(),
+                usuarioActualizado.getUsername(),
+                usuarioActualizado.getRole()
+        );
+
+
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("usuario", usuarioDTO);
+        response.put("token", nuevoToken);
+
+        return ResponseEntity.ok(response);
+
     }
 
 
     @PreAuthorize("isAuthenticated()") //expresion de SpringSecurity lo hace al interceptar el token
     @DeleteMapping("/eliminar")
-    public ResponseEntity<String> eliminarUsuarioAutenticado(Authentication authentication){
+    public ResponseEntity<?> eliminarUsuarioAutenticado(Authentication authentication){
         String username = authentication.getName();
 
         Optional<Usuario> usuarioOptional = usuarioRepositorio.findByUsername(username);
@@ -120,7 +141,7 @@ public class AuthController {
         }
 
         authService.eliminarUsuario(username);
-        return ResponseEntity.ok("Usuario eliminado con exito");
+        return ResponseEntity.ok(Collections.singletonMap ("respuesta","Usuario eliminado con exito"));
     }
 
     @PreAuthorize("isAuthenticated()")

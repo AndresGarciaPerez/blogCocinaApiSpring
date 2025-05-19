@@ -2,6 +2,7 @@ package myApp.blog.controlador;
 
 import myApp.blog.dto.RecetaResponse;
 import myApp.blog.modelo.Receta;
+import myApp.blog.modelo.Usuario;
 import myApp.blog.repositorio.UsuarioRepositorio;
 import myApp.blog.servicio.RecetaServicio;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -60,18 +62,19 @@ public class BlogControlador {
     public ResponseEntity<RecetaResponse> actualizarProducto(@PathVariable long id, @RequestBody Receta recetaRecibida, Authentication authentication){
         Receta receta = this.recetaServicio.obtenerRecetaEntidadPorId(id);
 
+        Usuario usuarioAutenticado = usuarioRepositorio.findByUsername(authentication.getName())
+                .orElseThrow( () -> new UsernameNotFoundException("Usuario no encontrado"));
+
+        if(!receta.getUsuario().getIdUsuario().equals(usuarioAutenticado.getIdUsuario()) ){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permisos para eliminar este registro");
+        }
+
         receta.setImagen(recetaRecibida.getImagen());
         receta.setTitulo(recetaRecibida.getTitulo());
         receta.setDescripcion(recetaRecibida.getDescripcion());
 
-
-        if(!receta.getUsuario().getUsername().equals(authentication.getName()) ){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permisos para eliminar este registro");
-        }
-
         //el id ya lo tiene al ejecutar buscarRecetaPorId
         RecetaResponse recetaActualizada = recetaServicio.guardarReceta(receta, authentication.getName());
-
         return  ResponseEntity.ok(recetaActualizada);
     }
 

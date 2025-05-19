@@ -20,7 +20,8 @@ public class Receta {
 
     String titulo;
 
-    @Column(nullable = false, length = 255)
+   // @Lob //para que este campo sea TEXT y acepte mas de mil caracteres
+    @Column(nullable = false, length = 300)
     String descripcion;
 
     @ManyToOne
