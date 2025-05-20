@@ -13,6 +13,7 @@ C:\Cursos\blog\src\main\java\myApp\blog\dto\UserInfoResponse.java
 C:\Cursos\blog\src\main\java\myApp\blog\controlador\AuthController.java
 C:\Cursos\blog\src\main\java\myApp\blog\dto\CambiarPasswordRequest.java
 C:\Cursos\blog\src\main\java\myApp\blog\servicio\IRecetaServicio.java
+C:\Cursos\blog\src\main\java\myApp\blog\config\WebConfig.java
 C:\Cursos\blog\src\main\java\myApp\blog\servicio\RecetaServicio.java
 C:\Cursos\blog\src\main\java\myApp\blog\seguridad\jwt\JwtUtils.java
 C:\Cursos\blog\src\main\java\myApp\blog\dto\RegistroRequest.java

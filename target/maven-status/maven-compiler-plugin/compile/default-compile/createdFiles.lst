@@ -2,11 +2,13 @@ myApp\blog\BlogApplication.class
 myApp\blog\modelo\Usuario.class
 myApp\blog\dto\RecetaDto$RecetaDTO.class
 myApp\blog\servicio\RecetaServicio.class
+myApp\blog\config\WebConfig$1.class
 myApp\blog\dto\AuthResponse.class
 myApp\blog\servicio\UsuarioDetailServiceImpl.class
 myApp\blog\controlador\AuthController.class
 myApp\blog\dto\RecetaResponse.class
 myApp\blog\servicio\IRecetaServicio.class
+myApp\blog\config\WebConfig.class
 myApp\blog\modelo\Receta.class
 myApp\blog\repositorio\RecetaRepositorio.class
 myApp\blog\dto\RegistroRequest.class
