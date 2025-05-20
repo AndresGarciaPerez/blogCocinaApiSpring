@@ -22,9 +22,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("blogCocina") //Http://localhost:8080/blogCocina
 
-//Permiso para angular
-//@CrossOrigin(value = "http://localhost:4200")
-//@CrossOrigin(value = "https://blogcocina-spring-angular.netlify.app")
 
 public class BlogControlador {
 
