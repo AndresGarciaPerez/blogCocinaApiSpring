@@ -23,6 +23,7 @@ import java.util.Map;
 @RequestMapping("blogCocina") //Http://localhost:8080/blogCocina
 
 //Permiso para angular
+@CrossOrigin(value = "https://blogcocinaapispring-production.up.railway.app")
 
 public class BlogControlador {
 

@@ -26,7 +26,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/auth") //localhost:8080/auth
 
-@CrossOrigin(value = "http://localhost:4200")
+@CrossOrigin(value = "https://blogcocinaapispring-production.up.railway.app")
 
 public class AuthController {
 
