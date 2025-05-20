@@ -44,7 +44,7 @@ public class SecurityConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://blogcocina-spring-angular.netlify.app","http://localhost:4200"));
+        config.setAllowedOrigins(List.of("https://blogcocina-spring-angular.netlify.app"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
